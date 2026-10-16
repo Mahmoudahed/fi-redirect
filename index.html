@@ -96,25 +96,27 @@
     <script>
         // ✅ استخرج البارامترات من الرابط
         const params = window.location.search.substring(1);
+        const urlParams = new URLSearchParams(window.location.search);
 
-        // ✅ بنِ رابط التطبيق
-        const appLink = 'footballintelligence://team' +
-                       (params ? '?' + params : '');
+        // ✅ اقرأ نوع الفعل من الرابط
+        //    - action=vote → صفحة التصويت
+        //    - action=team أو غيابه → صفحة الفريق (افتراضي)
+        const action = urlParams.get('action') || 'team';
+
+        // ✅ ابنِ الرابط حسب النوع
+        let appLink;
+        if (action === 'vote') {
+            appLink = 'footballintelligence://vote' + (params ? '?' + params : '');
+        } else {
+            appLink = 'footballintelligence://team' + (params ? '?' + params : '');
+        }
 
         // ✅ اعرض الرابط يدوياً كحل احتياطي
         document.getElementById('manualLink').textContent = appLink;
         document.getElementById('openBtn').href = appLink;
 
         // ✅ حاول الفتح التلقائي فوراً
-        let opened = false;
-
-        function tryOpen() {
-            window.location.href = appLink;
-            opened = true;
-        }
-
-        // فتح مباشر
-        tryOpen();
+        window.location.href = appLink;
 
         // ✅ إذا لم يُفتح التطبيق خلال 1.5 ثانية، اعرض الواجهة اليدوية
         setTimeout(() => {
@@ -123,13 +125,6 @@
             document.getElementById('spinner').style.display = 'none';
             document.getElementById('manual').style.display = 'block';
         }, 1500);
-
-        // ✅ عند رجوع المستخدم من التطبيق → اعرض اليدوي أيضاً
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                opened = true;
-            }
-        });
     </script>
 </body>
 </html>
